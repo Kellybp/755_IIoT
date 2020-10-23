@@ -1,3 +1,4 @@
+import java.io.*;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -29,10 +30,22 @@ public class MainProcess extends UnicastRemoteObject implements RMIInterface {
         //Nothing
     }
 
-    public void logValues(String args[], String process){
+    @Override
+    public void logValues(double num) throws IOException {
         //WIP
         //Create file if not exist
         //Write Value to it
+        File mainLogs = new File("mainLogs.txt");
+        mainLogs.createNewFile();
+        FileWriter fw = new FileWriter(mainLogs, true);
+        BufferedWriter bw = new BufferedWriter(fw);
+        PrintWriter pw = new PrintWriter(bw);
+        pw.println(num * 3);
+        pw.close();
+        bw.close();
+        fw.close();
+
+
     }
 
     public static void main(String[] args) throws InterruptedException {

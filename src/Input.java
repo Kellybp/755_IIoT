@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -8,6 +9,9 @@ public class Input {
     static double numValue;
     private static RMIInterface look_up;
 
+    public Input() {
+
+    }
     //"Measure" Num Value
     public double measureValue() {
         numValue = Math.random() * (50 - 20) + 20;
@@ -15,7 +19,7 @@ public class Input {
     }
 
     public static void main(String[] args)
-            throws MalformedURLException, RemoteException, NotBoundException, InterruptedException {
+            throws IOException, NotBoundException, InterruptedException {
 
         look_up = (RMIInterface) Naming.lookup("//localhost/MyServer");
         Input inputProcess = new Input();
@@ -25,10 +29,11 @@ public class Input {
         while (true) {
             count++;
             look_up.getInput(inputProcess.measureValue());
+            look_up.logValues(inputProcess.measureValue());
             Thread.sleep(look_up.sendingInterval);
             //if (count == (10 + (10 / Integer.parseInt(args[0])))) {
-             //   count = count / 0;
-           // }
+            //   count = count / 0;
+            // }
         }
 
     }

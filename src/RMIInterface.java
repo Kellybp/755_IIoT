@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.lang.String;
@@ -8,5 +9,5 @@ public interface RMIInterface extends Remote {
 
     void getInput(double  input) throws RemoteException;
     void getValues(int exponents[]) throws RemoteException;
-    void logValues(String values[], String process) throws RemoteException;
+    void logValues(double number) throws IOException, RemoteException;
 }
