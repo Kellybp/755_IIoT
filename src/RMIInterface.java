@@ -9,5 +9,5 @@ public interface RMIInterface extends Remote {
 
     void getInput(double  input) throws RemoteException;
     void getValues(int exponents[]) throws RemoteException;
-    void logValues(double number) throws IOException, RemoteException;
+    void logValues(double number, int count) throws IOException, RemoteException;
 }

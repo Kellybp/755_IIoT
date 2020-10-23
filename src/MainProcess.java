@@ -1,12 +1,15 @@
+
 import java.io.*;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
 import java.lang.String;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainProcess extends UnicastRemoteObject implements RMIInterface {
-
+    private static int lines;
     public MainProcess() throws RemoteException {
         super();
     }
@@ -21,8 +24,16 @@ public class MainProcess extends UnicastRemoteObject implements RMIInterface {
         System.out.println("----------------------------------");
         System.out.println("Initial Value Recorded: " + numValue);
         System.out.println("Exponents: \n1: " + numValue*numValue);
-        System.out.println("2: " + numValue*3);
+        double outputValue = numValue * 3;
+        System.out.println("2: " + outputValue);
+        if(outputValue != Math.pow(numValue,3)){
+            System.out.println("UNPATCHED CODE");
+        } else {
+            System.out.println("PATCHED CODE");
+        }
         System.out.println("----------------------------------");
+
+
     }
 
     //To make the interface work
@@ -31,21 +42,26 @@ public class MainProcess extends UnicastRemoteObject implements RMIInterface {
     }
 
     @Override
-    public void logValues(double num) throws IOException {
+    public void logValues(double num, int count) throws IOException {
         //WIP
         //Create file if not exist
         //Write Value to it
+        if(count == lines){
+            System.out.println("UPTO DATE");
+        } else {
+            System.out.println("DATA MISSING");
+        }
+
         File mainLogs = new File("mainLogs.txt");
         mainLogs.createNewFile();
         FileWriter fw = new FileWriter(mainLogs, true);
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter pw = new PrintWriter(bw);
-        pw.println(num * 3);
+        lines++;
+        pw.println("Input="+num + " : Output=" + num * 3);
         pw.close();
         bw.close();
         fw.close();
-
-
     }
 
     public static void main(String[] args) throws InterruptedException {
