@@ -7,67 +7,72 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
-public class ProcessInput {
-    private final Logger mLogger = LoggerFactory.getLogger(ProcessInput.class.getName());
+public class OPFileWriter {
+    private final Logger mLogger = LoggerFactory.getLogger(OPFileWriter.class.getName());
 
     private KafkaConsumer<String, String> mConsumer;
-    private static KafkaProducer producer;
+    private static String previousRecord = "";
 
-    ProcessInput(String bootstrapServer, String groupId, String topic) {
+    OPFileWriter(String bootstrapServer, String groupId, String topic) {
 
         Properties props = consumerProps(bootstrapServer, groupId);
         mConsumer = new KafkaConsumer<>(props);
         mConsumer.subscribe(Collections.singletonList(topic));
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
         String server = "127.0.0.1:9092";
-        String groupId = "ghost_application";
-        String topic = "iiot_inputs_test";
-        producer = new KafkaProducer(server);
-        new ProcessInput(server, groupId, topic).run();
+        String groupId = "file_writer";
+        String topic = "iiot_output";
+
+        new OPFileWriter(server, groupId, topic).run();
     }
 
     public void run() {
         try {
-            DataProcessor dataProcessor = new DataProcessor();
+
             while (true) {
                 ConsumerRecords<String, String> records = mConsumer.poll(Duration.ofMillis(100));
 
                 for (ConsumerRecord<String, String> record : records) {
                     mLogger.info(" Value: " + record.value());
-                    mLogger.info("Partition: " + record.partition() + ", Offset: " + record.offset());
-//                    System.out.println(record.value());
-                    String processedData = dataProcessor.processData(record.value());
-                    System.out.println(processedData);
-                    producer.put(processedData);
+                    writeToFile(record.value());
                 }
             }
-        } catch (WakeupException e) {
+        } catch (WakeupException | IOException e) {
             mLogger.info("Received shutdown signal!");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
         } finally {
             mConsumer.close();
         }
     }
 
-    private static String processData(String data) {
+    private static void writeToFile(String data) throws IOException {
 
-        String processedData = null;
+//        String str = "Hello";
+
         if (null != data && !data.isEmpty()) {
-            int count = Integer.parseInt(data);
-            processedData = count + " ; " + count * count + " ; " + count * count * count;
+
+            String key = data.split(";")[0];
+            if (null != key && !key.isEmpty() && !previousRecord.equals(key)) {
+
+                FileWriter fw = new FileWriter("outputData.txt", true);
+                BufferedWriter bw = new BufferedWriter(fw);
+                bw.write(data);
+                bw.newLine();
+                bw.close();
+                previousRecord = key;
+            }
         }
-        System.out.println(processedData);
-        return processedData;
     }
 
     private Properties consumerProps(String bootstrapServer, String groupId) {
@@ -77,7 +82,7 @@ public class ProcessInput {
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, deserializer);
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
-        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return properties;
     }

@@ -7,14 +7,19 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 public class ProcessInput {
     private final Logger mLogger = LoggerFactory.getLogger(ProcessInput.class.getName());
 
     private KafkaConsumer<String, String> mConsumer;
+    private static KafkaProducer producer;
 
     ProcessInput(String bootstrapServer, String groupId, String topic) {
 
@@ -23,31 +28,40 @@ public class ProcessInput {
         mConsumer.subscribe(Collections.singletonList(topic));
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
         String server = "127.0.0.1:9092";
         String groupId = "main_application";
         String topic = "iiot_inputs_test";
 
+        producer = new KafkaProducer(server);
         new ProcessInput(server, groupId, topic).run();
     }
 
     public void run() {
         try {
+            DataProcessor dataProcessor = new DataProcessor();
             while (true) {
                 ConsumerRecords<String, String> records = mConsumer.poll(Duration.ofMillis(100));
 
                 for (ConsumerRecord<String, String> record : records) {
                     mLogger.info(" Value: " + record.value());
                     mLogger.info("Partition: " + record.partition() + ", Offset: " + record.offset());
-                    System.out.println(record.value());
+                    String processedData = dataProcessor.processData(record.value());
+                    System.out.println(processedData);
+                    producer.put(processedData);
                 }
             }
         } catch (WakeupException e) {
             mLogger.info("Received shutdown signal!");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         } finally {
             mConsumer.close();
         }
     }
+
 
     private Properties consumerProps(String bootstrapServer, String groupId) {
         String deserializer = StringDeserializer.class.getName();

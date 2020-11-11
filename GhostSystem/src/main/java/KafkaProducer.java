@@ -1,4 +1,3 @@
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -9,54 +8,45 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class MessageProducer {
+public class KafkaProducer {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         String server = "127.0.0.1:9092";
-        String topic = "iiot_inputs_test";
+        String outputTopic = "iiot_output";
 
-        MessageProducer producer = new MessageProducer(server);
-        int count = 0;
-        while (true) {
-            count++;
-            producer.put(topic, String.valueOf(count));
-            Thread.sleep(10000);
-        }
-
-
-//        producer.close();
-
+        KafkaProducer producer = new KafkaProducer(server);
     }
 
     // Variables
 
-    private final KafkaProducer<String, String> mProducer;
+    private final org.apache.kafka.clients.producer.KafkaProducer<String, String> mProducer;
     private final Logger mLogger = LoggerFactory.getLogger(Producer.class);
 
     // Constructors
 
-    MessageProducer(String bootstrapServer) {
+    KafkaProducer(String bootstrapServer) {
         Properties props = producerProps(bootstrapServer);
-        mProducer = new KafkaProducer<>(props);
+        mProducer = new org.apache.kafka.clients.producer.KafkaProducer<>(props);
 
         mLogger.info("Producer initialized");
     }
 
     // Public
 
-    void put(String topic, String input) throws ExecutionException, InterruptedException {
+    void put(String input) throws ExecutionException, InterruptedException {
         mLogger.info("Put input: " + input);
+        String outputTopic = "iiot_output";
 
-        ProducerRecord<String, String> record = new ProducerRecord<>(topic, input);
+        ProducerRecord<String, String> record = new ProducerRecord<>(outputTopic, input);
         mProducer.send(record, (recordMetadata, e) -> {
             if (e != null) {
                 mLogger.error("Error while producing", e);
                 return;
             }
 
-            mLogger.info("Received new meta. Topic: " + recordMetadata.topic()
-                    + "; Partition: " + recordMetadata.partition()
-                    + "; Offset: " + recordMetadata.offset()
-                    + "; Timestamp: " + recordMetadata.timestamp());
+//            mLogger.info("Received new meta. Topic: " + recordMetadata.topic()
+//                    + "; Partition: " + recordMetadata.partition()
+//                    + "; Offset: " + recordMetadata.offset()
+//                    + "; Timestamp: " + recordMetadata.timestamp());
         }).get();
     }
 
