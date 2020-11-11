@@ -1,7 +1,7 @@
 # 755_IIoT
 
 
-##Commands to run
+## Commands to run
 
 ```
 cd MainSystem
@@ -29,7 +29,7 @@ java -cp $JAVA_HOME/lib/tools.jar:. Attach tmp.txt /Users/raj.g/Documents/Course
 ```
 
 
-##Refs:
+## Refs:
 
  - https://medium.com/pharos-production/apache-kafka-macos-installation-guide-a5a3754f09c
  - https://github.com/PharosProduction/tutorial-kafka-java/tree/master/src/main/java
