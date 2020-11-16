@@ -1,0 +1,3 @@
+Agent-Class: DumpPatchedFile
+Can-Redefine-Classes: true
+Permissions: all-permissions
