@@ -15,16 +15,20 @@ public class MessageProducer {
         String topic = "iiot_inputs_test";
 
         MessageProducer producer = new MessageProducer(server);
-        int count = 0;
+        int waterPressure = 0;
         while (true) {
-            count++;
-            producer.put(topic, String.valueOf(count));
-            Thread.sleep(10000);
+            waterPressure = getRandomNumber(10, 20);
+            producer.put(topic, String.valueOf(waterPressure));
+            Thread.sleep(2000);
         }
 
 
 //        producer.close();
 
+    }
+
+    public static int getRandomNumber(int min, int max) {
+        return (int) ((Math.random() * (max - min)) + min);
     }
 
     // Variables

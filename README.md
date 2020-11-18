@@ -1,5 +1,11 @@
 # 755_IIoT
 
+## Processes to start
+
+ 1. MessageProducer in GenerateMessages
+ 2. ProcessInput in MainSystem
+ 3. OPFileWriter in DataSink
+
 
 ## Commands to run
 
