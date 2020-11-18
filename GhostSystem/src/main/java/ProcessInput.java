@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 public class ProcessInput {
     private final Logger mLogger = LoggerFactory.getLogger(ProcessInput.class.getName());
@@ -45,30 +44,22 @@ public class ProcessInput {
 //                    System.out.println(record.value());
                     String processedData = dataProcessor.processData(record.value());
                     System.out.println(processedData);
-                    producer.put(processedData);
+//                    producer.put(processedData);
                 }
             }
         } catch (WakeupException e) {
             mLogger.info("Received shutdown signal!");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } finally {
-            mConsumer.close();
+        }
+//        catch (InterruptedException e) {
+//            e.printStackTrace();
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        }
+        finally {
+//            mConsumer.close();
         }
     }
 
-    private static String processData(String data) {
-
-        String processedData = null;
-        if (null != data && !data.isEmpty()) {
-            int count = Integer.parseInt(data);
-            processedData = count + " ; " + count * count + " ; " + count * count * count;
-        }
-        System.out.println(processedData);
-        return processedData;
-    }
 
     private Properties consumerProps(String bootstrapServer, String groupId) {
         String deserializer = StringDeserializer.class.getName();
