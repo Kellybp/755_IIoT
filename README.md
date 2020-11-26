@@ -1,10 +1,16 @@
 # 755_IIoT
 
+## Pre-requisites
+
+ - Apache kafka installed
+ - To start the local kafka (macOS):
+ 
+ ```zookeeper-server-start /usr/local/etc/kafka/zookeeper.properties & kafka-server-start /usr/local/etc/kafka/server.properties```
+
 ## Processes to start
 
  1. MessageProducer in GenerateMessages
- 2. ProcessInput in MainSystem
- 3. OPFileWriter in DataSink
+ 2. OPFileWriter in DataSink
 
 
 ## Commands to run
@@ -15,6 +21,9 @@ mvn package
 java -cp target/MainSystem-1.0-SNAPSHOT-jar-with-dependencies.jar ProcessInput
 # jar tvf target/MainSystem-1.0-SNAPSHOT-jar-with-dependencies.jar
 
+```
+You can start the DataProcessor of the Ghost process to verify the patch using the logs. After verifying, stop the Ghost process.
+```
 cd ../GhostSystem
 mvn package
 
@@ -39,7 +48,7 @@ java -cp $JAVA_HOME/lib/tools.jar:. Attach tmp.txt /Users/raj.g/Documents/Course
 
  - https://medium.com/pharos-production/apache-kafka-macos-installation-guide-a5a3754f09c
  - https://github.com/PharosProduction/tutorial-kafka-java/tree/master/src/main/java
- -  https://medium.com/@jhansireddy007/how-to-parallelise-kafka-consumers-59c8b0bbc37a
+ - https://medium.com/@jhansireddy007/how-to-parallelise-kafka-consumers-59c8b0bbc37a
  - http://baeldung.com/java-instrumentation
  - http://www.fasterj.com/articles/hotpatch1.shtml
  
